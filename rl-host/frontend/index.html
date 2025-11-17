@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant RL Host - AI Restaurant Manager</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🍽️ RESTAURANT RL HOST</h1>
+            <p class="subtitle">AI-Powered Restaurant Management System</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Restaurant View -->
+            <div class="left-panel">
+                <div class="section">
+                    <h2>Restaurant Layout</h2>
+                    <canvas id="restaurantCanvas" width="800" height="400"></canvas>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls section">
+                    <h3>Simulation Controls</h3>
+                    <div class="control-group">
+                        <button id="btnReset" class="btn btn-secondary">🔄 Reset</button>
+                        <button id="btnStartSim" class="btn btn-primary">▶️ Start Simulation</button>
+                        <button id="btnStopSim" class="btn btn-danger">⏹️ Stop</button>
+
+                        <select id="scenarioType" class="select">
+                            <option value="normal">Normal Flow</option>
+                            <option value="rush">Rush Hour</option>
+                            <option value="slow">Slow Period</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+
+                        <label>
+                            Speed:
+                            <select id="speedMultiplier" class="select">
+                                <option value="0.5">0.5x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="2">2x</option>
+                                <option value="5">5x</option>
+                                <option value="10">10x</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Stats and Queue -->
+            <div class="right-panel">
+                <!-- Statistics -->
+                <div class="stats section">
+                    <h3>📊 Statistics</h3>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Time:</span>
+                            <span class="stat-value" id="statTime">0:00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Queue:</span>
+                            <span class="stat-value" id="statQueue">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Seated:</span>
+                            <span class="stat-value" id="statSeated">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Available:</span>
+                            <span class="stat-value" id="statAvailable">10</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Served:</span>
+                            <span class="stat-value" id="statServed">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Lost:</span>
+                            <span class="stat-value" id="statLost">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Satisfaction:</span>
+                            <span class="stat-value" id="statSatisfaction">100%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Efficiency:</span>
+                            <span class="stat-value" id="statEfficiency">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waiting Queue -->
+                <div class="queue section">
+                    <h3>⏳ Waiting Queue</h3>
+                    <div id="queueList" class="queue-list">
+                        <p class="empty-message">No customers waiting</p>
+                    </div>
+                </div>
+
+                <!-- AI Decision Panel -->
+                <div class="ai-panel section">
+                    <h3>🤖 AI Host Decision</h3>
+                    <div id="aiDecision" class="ai-decision">
+                        <p>Waiting for customers...</p>
+                    </div>
+                    <div class="control-group">
+                        <button id="btnAIDecision" class="btn btn-primary">Get AI Recommendation</button>
+                        <button id="btnExecuteAI" class="btn btn-success">Execute AI Action</button>
+                    </div>
+                </div>
+
+                <!-- Manual Actions -->
+                <div class="manual-actions section">
+                    <h3>👤 Manual Actions</h3>
+                    <div class="control-group">
+                        <button id="btnAddCustomer" class="btn btn-secondary">➕ Add Customer</button>
+                    </div>
+                    <div id="manualSeatControls" style="display: none;">
+                        <select id="selectGroup" class="select"></select>
+                        <select id="selectTable" class="select"></select>
+                        <button id="btnManualSeat" class="btn btn-primary">Seat Customer</button>
+                    </div>
+                </div>
+
+                <!-- Event Log -->
+                <div class="log section">
+                    <h3>📝 Event Log</h3>
+                    <div id="eventLog" class="event-log">
+                        <p class="log-entry">System initialized.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Restaurant RL Host v1.0 | Powered by PPO Reinforcement Learning</p>
+        </footer>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Customer</h3>
+            <form id="addCustomerForm">
+                <label>
+                    Group Size:
+                    <input type="number" id="inputGroupSize" min="1" max="15" value="2" required>
+                </label>
+                <label>
+                    Zone Preference:
+                    <select id="inputZone" required>
+                        <option value="inside">Inside</option>
+                        <option value="outside">Outside</option>
+                        <option value="window">Window</option>
+                        <option value="bar">Bar</option>
+                    </select>
+                </label>
+                <label>
+                    Patience (minutes):
+                    <input type="number" id="inputPatience" min="5" max="60" value="20" required>
+                </label>
+                <label>
+                    Dining Duration (minutes):
+                    <input type="number" id="inputDuration" min="30" max="180" value="60" required>
+                </label>
+                <div class="control-group">
+                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                    <button type="button" id="btnCancelAdd" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
